@@ -15,24 +15,41 @@
                 <div class="form-outline form-light mb-4">
                   <label class="form-label" for="typeEmailX">Email</label>
                   <input
-                    type="email"
-                    name="login"
-                    id="typeEmailX"
-                    class="form-control form-control-lg"
+                  type="email"
+  name="email"
+  id="typeEmailX"
+  class="form-control form-control-lg"
+  required
+  @blur="validateEmail"
+  ref="emailInput"
                   />
+                  <p v-if="emailError" class="error-message">
+  <font-awesome-icon icon="exclamation-circle" />
+  {{ emailError }}
+</p>
                 </div>
   
                 <div class="form-outline form-light mb-4">
                   <label class="form-label" for="typePasswordX">Password</label>
                   <input
-                    type="password"
-                    id="typePasswordX"
-                    name="password"
-                    class="form-control form-control-lg"
+                   
+
+    type="password"
+    id="typePasswordX"
+    name="password"
+    class="form-control form-control-lg"
+    required
+    @blur="validatePassword"
+    ref="passwordInput"
                   />
+                  <p v-if="passwordError" class="error-message">
+  <font-awesome-icon icon="exclamation-circle" />
+  {{ passwordError }}
+</p>
                 </div>
   
-                <button class="btn btn-outline-light" :style="{ marginTop: '70px' }" type="submit">
+                <button class="btn btn-outline-light" :style="{ marginTop: '70px' }"  type="submit"
+  :disabled="!isFormComplete">
                   Login
                 </button>
               </div>
@@ -45,11 +62,60 @@
   </template>
    <script lang="ts">
  
-   import NavBar from './NavBar.vue'; 
+ import { library } from "@fortawesome/fontawesome-svg-core";
+   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+   import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+   import NavBar from './NavBar.vue'
+   library.add(faExclamationCircle)
    export default {
+    data() {
+    return {
+      isFormComplete: false,
+      isEmailValid: false,
+      isPasswordValid: false,
+      passwordError: '',
+      emailError: '',
+     
+    };
+  },
      components: {
+      FontAwesomeIcon,
        NavBar,
-     }}
+     },
+     methods: {
+     
+      validatePassword() {
+        const passwordInput = this.$refs.passwordInput as HTMLInputElement;
+        const password = passwordInput.value.trim();
+    
+        if (password.length < 8) {
+          this.passwordError = 'Password should contain at least 8 characters.'; 
+        } else {
+          this.passwordError = ''; 
+          this.isPasswordValid= true ;
+        }
+        this.isFormComplete= this.isEmailValid && this.isPasswordValid ;
+      },
+     
+    validateEmail() {
+      const emailInput = this.$refs.emailInput as HTMLInputElement;
+      const email = emailInput.value.trim();
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (email === '' || !emailPattern.test(email)) {
+        this.emailError = 'Please enter a valid email address.';
+      } else {
+        this.emailError = ''; 
+        this.isEmailValid= true;
+      }
+      this.isFormComplete= this.isEmailValid && this.isPasswordValid ;
+    },
+  
+    onSubmit() {
+      
+    },
+  },
+    }
    
       
    </script>
@@ -62,6 +128,9 @@ body {
   bottom: 0;
   left: 0;
   background-image: url('../src/assets/images/background.png');
+}
+.error-message {
+  color: yellow;
 }
 
   .form-container {
