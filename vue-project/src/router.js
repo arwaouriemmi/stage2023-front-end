@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import NavBar from './components/NavBar.vue' ;
-import test from './components/test.vue' ;
-import TestUpdate from './components/TestUpdate.vue' ;
 import SignInForm from './components/SignInForm.vue' ;
 import SignUpForm from './components/SignUpForm.vue' ;
 import Profile from './components/Profile.vue' ;
@@ -10,8 +8,7 @@ import AboutUs from './components/AboutUs.vue' ;
 import UpdateForm from './components/UpdateForm.vue' ;
 import Observations from './components/Observations.vue' ;
 import Image from './components/Image.vue' ;
-import TestObservations from './components/TestObservations.vue' ;
-import TestImage from './components/TestImage.vue' ;
+
 const routes = [
     {
         path: '/aboutus',
@@ -24,25 +21,17 @@ const routes = [
         component: Image, 
       },
       {
-        path: '/observations/:id',
+        path: '/observations',
         name: 'observations',
         component: Observations, 
       },
       {
-        path: '/edit/:id',
+        path: '/edit',
         name: 'edit',
         component: UpdateForm, 
       },
-      {
-        path: '/testobservations',
-        name: 'testobservations',
-        component: TestObservations, 
-      },
-      {
-        path: '/testimage',
-        name: 'testimage',
-        component: TestImage, 
-      },
+      
+     
     {
         path: '/home',
         name: 'Home',
@@ -54,23 +43,15 @@ const routes = [
       component: NavBar, 
     },
     {
-        path: '/profile/:id',
+        path: '/profile',
         name: 'Profile',
         component: Profile, 
       },
-      {
-        path: '/testprofile',
-        name: 'testprofile',
-        component: test, 
-      },
-      {
-        path: '/testupdate',
-        name: 'testupdate',
-        component: TestUpdate, 
-      },
+      
+      
       
       {
-        path: '/signin',
+        path: '/',
         name: 'SignIn',
         component: SignInForm, 
       },

@@ -1,6 +1,7 @@
 <template>
     <ul class="menu">
    <li
+     v-if="token"
      class="menu-item"
    >
      <a
@@ -34,7 +35,8 @@
      class="menu-item"
    >
      <a
-       href="/signin"
+     v-if="!token"
+       href="/"
        class="menu-link"
        
      >
@@ -49,6 +51,7 @@
      class="menu-item"
    >
      <a
+     v-if="!token"
        href="/signup"
        class="menu-link"
        
@@ -61,10 +64,11 @@
      </a>
    </li>
    <li
+     v-if="token"
      class="menu-item"
    >
      <a
-       href="/testprofile"
+       href="/profile"
        class="menu-link"
        
      >
@@ -76,10 +80,12 @@
      </a>
    </li>
    <li
+     v-if="token"
      class="menu-item"
    >
      <a
-       href="/home"
+     @click="deconnexion"
+       href="/"
        class="menu-link"
        
      >
@@ -109,40 +115,53 @@ import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 library.add(faSignOutAlt,faInfoCircle,faUser,faUserPlus,faSignInAlt,faHouse)
  
  export default {
+  computed: {
+    token() {
+      return localStorage.getItem('token');
+    },
+  },
    components: {
      FontAwesomeIcon,
    },
+   methods: {
+  deconnexion() {
+    debugger;
+    localStorage.removeItem('token');
+    debugger;
+    window.location.href = '/'; 
+  },
+},
  };
  </script>
  
  <style >
 :root {
- --link-text-color: #ffffff; /* White color for link text */
- --menu-background-color: #dc3545; /* Dark red color for menu background */
+ --link-text-color: #ffffff; 
+ --menu-background-color: #dc3545; 
 }
- /* ul */
+
  .menu {
  padding: 0;
  margin: 0;
  position: relative;
  background-color: var(--menu-background-color);
  display: flex;
- justify-content: center; /* Center the items horizontally */
- align-items: center; /* Center the items vertically */
+ justify-content: center; 
+ align-items: center; 
  width: 100%;
  list-style-type: none;
  overflow: hidden;
 }
 
 
- /* li */
+
  .menu-item {
    display: inline-flex;
  }
  
- /* a */
+
  .menu-link {
- padding: 1.5rem 1rem; /* Increase the top and bottom padding */
+ padding: 1.5rem 1rem; 
  display: inline-flex;
  align-items: center;
  color: var(--link-text-color);
@@ -154,7 +173,7 @@ library.add(faSignOutAlt,faInfoCircle,faUser,faUserPlus,faSignInAlt,faHouse)
    color: grey;
  }
  
- /* icon */
+ 
  .menu-icon {
    height: 1.5rem;
    width: 1.5rem;

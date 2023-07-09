@@ -19,28 +19,40 @@
       </l-map>
       <div v-if="showForm" class="overlay-form" >
         <div class="form-container">
-        <form @submit.prevent="submitObservation">
+        <form @submit="submitObservation">
           <div class="card bg-danger text-light" :style="{ borderRadius: '1rem' }">
             <div class="card-body text-center">
               <div>
                 <h5 class="fw-bold mb-2 text-uppercase">Observation</h5>
                 <div class="form-outline form-light mb-4">
           <label class="form-label" for="Latitude"> Latitude:</label>
-          <input id="Latitude"  class="form-control form-control-lg" type="text" :value="currentLatitude" disabled>
+          <input id="Latitude"  class="form-control form-control-lg" type="text" :value="currentLatitude" required
+    
+    ref="latitudeInput" disabled>
         </div>
         <div class="form-outline form-light mb-4">
           <label class="form-label" for="Longitude"> Longitude:</label>
-          <input id="Longitude"  class="form-control form-control-lg" type="text" :value="currentLongitude" disabled>
+          <input id="Longitude"  class="form-control form-control-lg" type="text" :value="currentLongitude" required
+    
+    ref="longitudeInput" disabled>
         </div>
           <div class="form-outline form-light mb-4">
           <label class="form-label" for="comment"> Comment:</label>
-          <textarea  class="form-control form-control-lg" id="comment" v-model="observation.comment"></textarea>
+          <textarea  class="form-control form-control-lg" id="comment"  required
+    @blur="validateComment"
+    ref="commentInput"></textarea>
+    <p v-if="commentError" class="error-message">
+    <font-awesome-icon icon="exclamation-circle" />
+    {{ commentError }}
+  </p>
         </div>
         <div class="form-outline form-light mb-4">
           <label class="form-label" for="images">Images:</label>
-          <input  class="form-control form-control-lg" type="file" id="images" @change="handleImageUpload" multiple>
+          <input  class="form-control form-control-lg" type="file" id="images" 
+   
+    ref="imagesInput"  multiple>
         </div>
-          <button class="btn btn-outline-light"  type="submit">Submit Observation</button>
+          <button class="btn btn-outline-light"  type="submit" :disabled="!isCommentValid">Submit Observation</button>
         </div>
       </div>
     </div>
@@ -53,12 +65,18 @@
 </template>
 
 <script lang="ts">
+  import { library } from "@fortawesome/fontawesome-svg-core";
+   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+   import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+   
+
+   library.add(faExclamationCircle)
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer, LGeoJson, LMarker } from "@vue-leaflet/vue-leaflet";
 import NavBar from './NavBar.vue';
 import "leaflet/dist/leaflet.css";
 import { GeoJsonObject } from 'geojson';
-
+import axios from 'axios';
 type LatLngTuple = [number, number];
 
 export default {
@@ -87,27 +105,37 @@ export default {
     NavBar,
     LGeoJson,
     LMarker,
+    FontAwesomeIcon,
   },
   data() {
     return {
+      commentError:'',
+      isCommentValid:false,
       zoom: 12,
       center: [33.8869, 9.5375] as LatLngTuple,
       markerPosition: null as LatLngTuple | null,
       tunisiaGeojson: {} as GeoJsonObject | GeoJsonObject[] | undefined,
       showForm: false,
-      observation: {
-        comment: '',
-        longitude:'',
-        latitude:'',
-        images: [] as File[],
-      },
+     
       
     };
   },
   
   methods: {
     
-    
+    validateComment() {
+      const commentInput = this.$refs.commentInput as HTMLInputElement;
+      const comment = commentInput.value.trim();
+     
+
+      if (comment === '') {
+        this. commentError = 'Please enter a comment .';
+      } else {
+        this. commentError = ''; 
+        this.isCommentValid= true;
+      }
+     
+    },
     onMapLoaded() {
       // Delay the zooming to allow the map tiles to load
       setTimeout(() => {
@@ -134,10 +162,60 @@ export default {
       const files = event.target.files;
       this.observation.images = Array.from(files);
     },
-    submitObservation() {
-      // Handle the form submission here
-      // You can access the observation data from this.observation
-      console.log(this.observation);
+   async submitObservation(event) {
+      event.preventDefault();
+     
+const form = new FormData();
+
+const imagesInput = this.$refs.imagesInput as HTMLInputElement;
+console.log('imagesInput:', imagesInput);
+console.log('imagesInput.files:', imagesInput.files);
+const imagesFiles = imagesInput.files;
+
+console.log(imagesFiles);
+    
+if (imagesFiles) {
+  for (let i = 0; i < imagesFiles.length; i++) {
+    const file = imagesFiles[i];
+    form.append('images', file);
+  }
+}
+      const today = new Date().toLocaleDateString();
+      form.append('observationJson', JSON.stringify({
+       date : today,
+        latitude: this.$refs.latitudeInput.value.trim(),
+        longitude: this.$refs.longitudeInput.value.trim(),
+       text: this.$refs.commentInput.value.trim()
+        
+      }));
+      form.forEach((value, key) => {
+        console.log(key + ': ' + value);
+      });
+      
+      
+      console.log(form);
+      debugger;
+  try {
+  debugger;
+  const response = await axios.post('https://localhost:44382/observation/add', form ,  {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+  debugger;
+  window.location.href = '/home';
+
+ 
+} catch (error) {
+
+  console.log('Error occurred while submitting the form:', error);
+  
+  
+
+   
+
+}
+
     },
   },
 };
@@ -189,11 +267,13 @@ body {
 
   .form-container {
     width: 100%;
-    max-width: 400px; /* Adjust this value to increase or decrease the width of the form */
+    max-width: 400px; 
     margin: 0 auto;
   }
 .l-map {
   height: 100%;
 }
-
+.error-message {
+  color: yellow;
+}
 </style>

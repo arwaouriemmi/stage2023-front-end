@@ -9,6 +9,7 @@
               <div class="card-body p-5 text-center">
                 <div>
                     <h2 class="text-uppercase">Inscription</h2>
+                    <form @submit="onSubmit">
                   <div class="form-outline form-light ">
                     <label class="form-label" for="typeEmailX">Nom Complet</label>
                     <input
@@ -90,7 +91,7 @@
       type="tel"
       id="typetelX"
       name="tel"
-      pattern="[0-9]{10}"
+      pattern="[0-9]{8}"
       class="form-control form-control-lg"
       required
     @blur="validateTelephone"
@@ -112,7 +113,9 @@
                       name="image"
                       class="form-control form-control-lg"
                       accept="image/*"
+                      
                       required
+                      ref="imageInput"
                     />
                   </div>
                   
@@ -125,6 +128,7 @@
 >
   Sign Up
 </button>
+</form>
                 </div>
               </div>
             </div>
@@ -139,6 +143,8 @@
    import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
    import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
    import NavBar from './NavBar.vue'; 
+   import axios from 'axios';
+
    library.add(faExclamationCircle)
    export default {
     data() {
@@ -229,9 +235,54 @@
       }
       this.isFormComplete= this.isNomCompletValid && this.isEmailValid && this.isPasswordValid && this.isTelValid && this.isCinValid;
     },
-    onSubmit() {
+   async  onSubmit(event) {
+    event.preventDefault();
+     
+const form = new FormData();
+
+const imageInput = this.$refs.imageInput as HTMLInputElement;
+console.log('imageInput:', imageInput);
+console.log('imageInput.files:', imageInput.files);
+const imageFile = imageInput.files?.[0];
+
+console.log(imageFile);
+    
+      if (imageFile) {
+        form.append('img', imageFile);
+      }
+      form.append('citoyenJson', JSON.stringify({
+        NomComplet: this.$refs.nomCompletInput.value.trim(),
+        Email: this.$refs.emailInput.value.trim(),
+        Password: this.$refs.passwordInput.value.trim(),
+        Cin: this.$refs.cinInput.value.trim(),
+        Tel: this.$refs.telInput.value.trim()
+      }));
+      form.forEach((value, key) => {
+        console.log(key + ': ' + value);
+      });
       
-    },
+      
+      console.log(form);
+      debugger;
+  try {
+  debugger;
+  const response = await axios.post('https://localhost:44382/auth/register', form);
+  debugger;
+  window.location.href = '/';
+
+ 
+} catch (error) {
+
+  console.log('Error occurred while submitting the form:', error);
+  
+  
+
+   
+
+}
+
+    }
+    
   },
     }
    

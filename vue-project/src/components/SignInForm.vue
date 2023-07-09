@@ -11,7 +11,7 @@
                 <p class="text-light-50 mb-5">
                   Entrez votre login et votre mot de passe !
                 </p>
-  
+                <form @submit="onSubmit">
                 <div class="form-outline form-light mb-4">
                   <label class="form-label" for="typeEmailX">Email</label>
                   <input
@@ -48,10 +48,17 @@
 </p>
                 </div>
   
-                <button class="btn btn-outline-light" :style="{ marginTop: '70px' }"  type="submit"
+                <button class="btn btn-outline-light" :style="{ marginTop: '20px' }"  type="submit"
   :disabled="!isFormComplete">
                   Login
                 </button>
+</form>
+                <div class="form-outline form-light mb-4">
+                  <p>Créer un nouveau compte</p>
+          <router-link :to="'/signup'">
+            <button class="btn btn-outline-light" >Sign Up</button>
+          </router-link>
+        </div>
               </div>
             </div>
           </div>
@@ -66,6 +73,8 @@
    import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
    import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
    import NavBar from './NavBar.vue'
+   import axios from 'axios';
+   import router from "../router.js";
    library.add(faExclamationCircle)
    export default {
     data() {
@@ -111,9 +120,36 @@
       this.isFormComplete= this.isEmailValid && this.isPasswordValid ;
     },
   
-    onSubmit() {
-      
-    },
+    async  onSubmit(event) {
+    event.preventDefault();
+    const LoginCredentials = {
+    Login: this.$refs.emailInput.value.trim(),
+    Password: this.$refs.passwordInput.value.trim()
+  };
+
+  try {
+   debugger;
+    const response = await axios.post('https://localhost:44382/auth/login',LoginCredentials);
+    debugger;
+    console.log(response.data);
+    debugger;
+    const token = response.data; 
+    localStorage.setItem("token", token);
+    debugger;
+  
+   window.location.href = '/profile'; 
+
+  } catch (error) {
+    debugger;
+    console.log('Catch block executed');
+    debugger;
+    console.log(error);
+    alert('An error occurred while submitting the form. Please try again later.');
+   
+  }
+
+     
+},
   },
     }
    
@@ -129,14 +165,19 @@ body {
   left: 0;
   background-image: url('../src/assets/images/background.png');
 }
+.container{
+    margin-top: 5px;
+  }
 .error-message {
   color: yellow;
 }
 
   .form-container {
     width: 100%;
-    max-width: 400px; /* Adjust this value to increase or decrease the width of the form */
+    max-width: 400px; 
     margin: 0 auto;
+ 
+   
   }
   .navbar-custom {
  
@@ -155,7 +196,7 @@ body {
     background-position: center;
   }
   
-  /* Custom styles for the red edition */
+ 
   .bg-danger {
     background-color: #dc3545 !important;
   }

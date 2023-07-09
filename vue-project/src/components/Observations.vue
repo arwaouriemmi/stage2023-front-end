@@ -2,19 +2,19 @@
   <body>
     <NavBar />
     <div class="row justify-content-center">
-      <div v-for="observation in user.observations" :key="observation.id" class="col-sm-3">
+      <div v-for="observation in this.observations" :key="observation.id" class="col-sm-3">
         <div class="card bg-danger card my-3 custom-card">
           <div class="card-body text-white">
             <h5 class="card-title">{{ observation.date }}</h5>
             <div class="card-content">
               <div class="observation-info">
                 <font-awesome-icon icon="map-marker" />
-                {{ observation.localisation }}
+                {{ observation.longitude }} / {{ observation.latitude }}
               </div>
               <p class="card-text">{{ observation.text }}</p>
-            </div>
+            </div> 
             <div class="button-container mt-auto">
-              <router-link :to="'/testimage'">
+              <router-link :to="`/images/${observation.id}`">
             <button class="btn btn-outline-light" >Voir les Images</button>
           </router-link>
             </div>
@@ -30,18 +30,56 @@
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   import { library } from "@fortawesome/fontawesome-svg-core";
 import { faMapMarker } from '@fortawesome/free-solid-svg-icons';
+import { ref } from 'vue';
+import axios from 'axios';
 library.add(faMapMarker )
   export default {
+    setup() {
+     
+    const observations = ref([]);
+     
+
+    
+
+    return {
+      observations,
+     
+      
+    };
+  },
     components: {
       NavBar,
       FontAwesomeIcon ,
     },
-    props: {
-      user: {
-        type: Object,
-        default: () => ({}),
-      },
+    async created() {
+     
+      debugger;
+   await this.fetchCitizenData();
+    debugger;
+  },
+  methods:{
+      async fetchCitizenData() {
+      try {
+        
+        const response = await axios.get("https://localhost:44382/observation/ObservationsByCitoyenToken", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        this.observations = response.data;
+console.log(this.observations);
+debugger;
+
+
+
+        
+      } catch (error) {
+        console.log("Une erreur s'est produite lors de la récupération des données du citoyen");
+        console.log(error);
+      }
     },
+    },
+   
   };
   </script>
   
